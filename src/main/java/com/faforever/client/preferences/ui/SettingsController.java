@@ -103,6 +103,7 @@ public class SettingsController implements Controller<Node> {
   public PasswordField newPasswordField;
   public PasswordField confirmPasswordField;
   public ComboBox<TimeInfo> timeComboBox;
+  public ComboBox<String> chatComboBox;
   public Label passwordChangeErrorLabel;
   public Label passwordChangeSuccessLabel;
   private ChangeListener<Theme> themeChangeListener;
@@ -205,6 +206,7 @@ public class SettingsController implements Controller<Node> {
       }
     });
     configureTimeSetting(preferences);
+    configureChatSetting(preferences);
     configureLanguageSelection(preferences);
     configureThemeSelection(preferences);
     configureRememberLastTab(preferences);
@@ -247,6 +249,22 @@ public class SettingsController implements Controller<Node> {
     log.debug("A new time format was selected: {}", timeComboBox.getValue());
     Preferences preferences = preferencesService.getPreferences();
     preferences.getChat().setTimeFormat(timeComboBox.getValue());
+    preferencesService.storeInBackground();
+  }
+
+
+  private void configureChatSetting(Preferences preferences) {
+    //TODO: observableArrayList contains fixed strings...
+    chatComboBox.setItems(FXCollections.observableArrayList("Extended", "Compact"));
+    chatComboBox.setDisable(false);
+    chatComboBox.setFocusTraversable(true);
+    chatComboBox.getSelectionModel().select(preferences.getChat().getChatFormat());
+  }
+
+  public void onChatFormatSelected() {
+    log.debug("A new chat format was selected: {}", chatComboBox.getValue());
+    Preferences preferences = preferencesService.getPreferences();
+    preferences.getChat().setChatFormat(chatComboBox.getValue());
     preferencesService.storeInBackground();
   }
 

@@ -37,6 +37,13 @@ a {
   border-bottom: 1px solid #424242;
 }
 
+.compact {
+  overflow: hidden;
+  padding: 0.1em;
+  /* Same color as -divider-color */
+  border-bottom: none;
+}
+
 .chat-section * {
   word-wrap: break-word;
 }
@@ -128,6 +135,31 @@ img.country-flag[src=""] {
 .self,
 .username.self {
   color: #FFA500;
+}
+
+table {
+width:100%
+}
+
+td#text {
+width:99%;
+}
+
+td#author {
+width: 13.5em;
+text-align: right;
+}
+td#avatar {
+width: 44px;
+}
+td#flag {
+width: 20px;
+}
+
+td#time {
+width:40px;
+padding:1em;
+text-align:right;
 }
 
 /***************** News (WebView) *****************/

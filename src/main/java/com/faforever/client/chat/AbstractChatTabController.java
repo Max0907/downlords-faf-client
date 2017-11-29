@@ -89,6 +89,7 @@ import static com.faforever.client.chat.SocialStatus.FRIEND;
 import static com.faforever.client.chat.SocialStatus.SELF;
 import static com.faforever.client.theme.UiService.CHAT_CONTAINER;
 import static com.faforever.client.theme.UiService.CHAT_ENTRY;
+import static com.faforever.client.theme.UiService.CHAT_ENTRY_COMPACT;
 import static com.faforever.client.theme.UiService.CHAT_TEXT;
 import static com.faforever.client.util.RatingUtil.getGlobalRating;
 import static com.faforever.client.util.RatingUtil.getLeaderboardRating;
@@ -667,7 +668,20 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
         onMention(chatMessage);
       }
 
-      String html = CharStreams.toString(reader).replace("{text}", text);
+      String containerId = "chat-section-";
+      String html = CharStreams.toString(reader);
+      if (preferencesService.getPreferences().getChat().getChatFormat().equals("Compact")) {
+
+        if (lastMessage == null || !lastMessage.getUsername().equals(chatMessage.getUsername())
+            || lastMessage.getTime().isBefore(chatMessage.getTime().minus(1, MINUTES))) {
+          html = "<td class=\"text {css-classes}\">{text}</td>";
+          containerId = "first-compact-chat-message-";
+        } else {
+          html = "<tr><td></td><td></td><td></td><td class=\"text {css-classes}\">{text}</td></tr>";
+        }
+      }
+
+      html = html.replace("{text}", text);
 
       Collection<String> cssClasses = new ArrayList<>();
       if (chatMessage.isAction()) {
@@ -677,13 +691,26 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
       }
 
       html = html.replace("{css-classes}", Joiner.on(' ').join(cssClasses));
-      addToMessageContainer(html, "chat-section-" + lastEntryId);
+      addToMessageContainer(html, containerId + lastEntryId);
     }
   }
 
   private void addChatSection(ChatMessage chatMessage) throws IOException {
     Player player = playerService.getPlayerForUsername(chatMessage.getUsername());
-    try (Reader reader = new InputStreamReader(uiService.getThemeFileUrl(CHAT_ENTRY).openStream())) {
+    URL themeFileURL;
+    switch (preferencesService.getPreferences().getChat().getChatFormat()) {
+      case "Extended":
+        themeFileURL = uiService.getThemeFileUrl(CHAT_ENTRY);
+        break;
+      case "Compact":
+        themeFileURL = uiService.getThemeFileUrl(CHAT_ENTRY_COMPACT);
+        break;
+      default:
+        themeFileURL = uiService.getThemeFileUrl(CHAT_ENTRY);
+        break;
+    }
+
+    try (Reader reader = new InputStreamReader(themeFileURL.openStream())) {
       String login = chatMessage.getUsername();
       String html = CharStreams.toString(reader);
 
@@ -707,7 +734,8 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
           .replace("{username}", login)
           .replace("{clan-tag}", clanTag)
           .replace("{country-flag}", StringUtils.defaultString(countryFlagUrl))
-          .replace("{section-id}", String.valueOf(++lastEntryId));
+          .replace("{section-id}", String.valueOf(++lastEntryId))
+          .replace("{message-id}", String.valueOf(lastEntryId));
 
       Collection<String> cssClasses = new ArrayList<>();
       cssClasses.add(String.format("user-%s", chatMessage.getUsername()));

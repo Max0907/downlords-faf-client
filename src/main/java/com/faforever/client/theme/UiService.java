@@ -32,6 +32,7 @@ public interface UiService {
   String LADDER_1V1_IMAGE = "theme/images/ranked1v1_notification.png";
   String CHAT_CONTAINER = "theme/chat/chat_container.html";
   String CHAT_ENTRY = "theme/chat/chat_section.html";
+  String CHAT_ENTRY_COMPACT = "theme/chat/chat_section_compact.html";
   String CHAT_TEXT = "theme/chat/chat_text.html";
 
   Theme DEFAULT_THEME = new Theme() {
