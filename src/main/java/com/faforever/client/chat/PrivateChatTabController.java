@@ -8,7 +8,6 @@ import com.faforever.client.fx.JavaFxUtil;
 import com.faforever.client.fx.PlatformService;
 import com.faforever.client.fx.WebViewConfigurer;
 import com.faforever.client.i18n.I18n;
-import com.faforever.client.map.MapService;
 import com.faforever.client.notification.NotificationService;
 import com.faforever.client.player.Player;
 import com.faforever.client.player.PlayerService;
@@ -67,15 +66,14 @@ public class PrivateChatTabController extends AbstractChatTabController {
                                   EventBus eventBus,
                                   AudioService audioService,
                                   ChatService chatService,
-                                  MapService mapService,
                                   WebViewConfigurer webViewConfigurer,
                                   CountryFlagService countryFlagService,
                                   ReplayService replayService,
                                   ClientProperties clientProperties,
                                   ExternalReplayInfoGenerator externalReplayInfoGenerator) {
-    super(clanService, webViewConfigurer, userService, chatService, platformService, preferencesService, playerService, audioService, timeService, i18n,
-        imageUploadService, urlPreviewResolver, notificationService, reportingService, uiService, autoCompletionHelper,
-        eventBus, countryFlagService, replayService, clientProperties, externalReplayInfoGenerator);
+    super(clanService, webViewConfigurer, userService, chatService, platformService, preferencesService, playerService,
+        audioService, timeService, i18n, urlPreviewResolver, notificationService, reportingService, uiService,
+        autoCompletionHelper, eventBus, countryFlagService, replayService, clientProperties, externalReplayInfoGenerator);
   }
 
 

@@ -123,7 +123,7 @@ public class ChannelTabControllerTest extends AbstractPlainJavaFxTest {
 
     instance = new ChannelTabController(clanService, userService, chatService,
         platformService, preferencesService, playerService,
-        audioService, timeService, i18n, imageUploadService,
+        audioService, timeService, i18n,
         urlPreviewResolver, notificationService, reportingService,
         uiService, autoCompletionHelper,
         eventBus, webViewConfigurer, threadPoolExecutor, taskScheduler,

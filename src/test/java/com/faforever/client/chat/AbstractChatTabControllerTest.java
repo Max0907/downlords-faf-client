@@ -21,7 +21,6 @@ import com.faforever.client.replay.ReplayService;
 import com.faforever.client.reporting.ReportingService;
 import com.faforever.client.test.AbstractPlainJavaFxTest;
 import com.faforever.client.theme.UiService;
-import com.faforever.client.uploader.ImageUploadService;
 import com.faforever.client.user.UserService;
 import com.faforever.client.util.TimeService;
 import com.google.common.eventbus.EventBus;
@@ -44,14 +43,17 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.testfx.util.WaitForAsyncUtils;
 
+import java.net.URL;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 import static com.faforever.client.chat.AbstractChatTabController.CSS_CLASS_CHAT_ONLY;
 import static com.faforever.client.chat.SocialStatus.FOE;
@@ -93,8 +95,6 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
   private TimeService timeService;
   @Mock
   private AudioService audioService;
-  @Mock
-  private ImageUploadService imageUploadService;
   @Mock
   private I18n i18n;
   @Mock
@@ -147,7 +147,7 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
 
     instance = new AbstractChatTabController(clanService, webViewConfigurer, userService,
         chatService, platformService, preferencesService, playerService,
-        audioService, timeService, i18n, imageUploadService,
+        audioService, timeService, i18n,
         urlPreviewResolver, notificationService, reportingService,
         uiService, autoCompletionHelper, eventBus, countryFlagService, replayService, clientProperties, externalReplayInfoGenerator) {
       private final Tab root = new Tab();
@@ -381,6 +381,7 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void testPasteImageCtrlV() throws Exception {
     KeyCode modifier;
     if (Platform.isMacOSX()) {
@@ -391,8 +392,11 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
 
     Image image = new Image(getClass().getResourceAsStream("/theme/images/close.png"));
 
+    ImageUploadWindowController mockImageUploadController = mock(ImageUploadWindowController.class);
+    when(uiService.loadFxml("theme/image_upload.fxml")).thenReturn(mockImageUploadController);
+
     String url = "http://www.example.com/fake.png";
-    when(imageUploadService.uploadImageInBackground(any())).thenReturn(completedFuture(url));
+    ArgumentCaptor<Consumer<CompletableFuture<URL>>> captor = ArgumentCaptor.forClass(Consumer.class);
 
     WaitForAsyncUtils.waitForAsyncFx(TIMEOUT, () -> {
       ClipboardContent clipboardContent = new ClipboardContent();
@@ -404,15 +408,23 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
       );
     });
 
+    verify(mockImageUploadController).setCallback(captor.capture());
+    captor.getValue().accept(CompletableFuture.completedFuture(new URL(url)));
+    WaitForAsyncUtils.waitForFxEvents();
+
     assertThat(instance.messageTextField().getText(), is(url));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void testPasteImageShiftInsert() throws Exception {
     Image image = new Image(getClass().getResourceAsStream("/theme/images/close.png"));
 
+    ImageUploadWindowController mockImageUploadController = mock(ImageUploadWindowController.class);
+    when(uiService.loadFxml("theme/image_upload.fxml")).thenReturn(mockImageUploadController);
+
     String url = "http://www.example.com/fake.png";
-    when(imageUploadService.uploadImageInBackground(any())).thenReturn(completedFuture(url));
+    ArgumentCaptor<Consumer<CompletableFuture<URL>>> captor = ArgumentCaptor.forClass(Consumer.class);
 
     WaitForAsyncUtils.waitForAsyncFx(TIMEOUT, () -> {
       ClipboardContent clipboardContent = new ClipboardContent();
@@ -423,6 +435,10 @@ public class AbstractChatTabControllerTest extends AbstractPlainJavaFxTest {
           keyEvent(KeyCode.INSERT, singletonList(KeyCode.SHIFT))
       );
     });
+
+    verify(mockImageUploadController).setCallback(captor.capture());
+    captor.getValue().accept(CompletableFuture.completedFuture(new URL(url)));
+    WaitForAsyncUtils.waitForFxEvents();
 
     assertThat(instance.messageTextField().getText(), is(url));
   }

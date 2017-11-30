@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -25,7 +26,7 @@ public class ImgurImageUploadService implements ImageUploadService {
   }
 
   @Override
-  public CompletableFuture<String> uploadImageInBackground(Image image) {
+  public CompletableFuture<URL> uploadImageInBackground(Image image) {
     ImgurUploadTask imgurUploadTask = applicationContext.getBean(ImgurUploadTask.class);
     imgurUploadTask.setImage(image);
     return taskService.submitTask(imgurUploadTask).getFuture();

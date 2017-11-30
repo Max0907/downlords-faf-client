@@ -4,7 +4,9 @@ import com.faforever.client.fx.Controller;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Region;
 import javafx.scene.web.WebView;
+import javafx.stage.Window;
 
 import java.net.URL;
 import java.util.Collection;
@@ -82,4 +84,6 @@ public interface UiService {
    * context, so its scope (which should always be "prototype") depends on the bean definition.
    */
   <T extends Controller<?>> T loadFxml(String relativePath);
+
+  void displayDialog(Region content, Window ownerWindow);
 }

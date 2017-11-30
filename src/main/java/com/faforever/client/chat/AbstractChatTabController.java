@@ -27,7 +27,6 @@ import com.faforever.client.replay.ReplayService;
 import com.faforever.client.reporting.ReportingService;
 import com.faforever.client.theme.UiService;
 import com.faforever.client.ui.StageHolder;
-import com.faforever.client.uploader.ImageUploadService;
 import com.faforever.client.user.UserService;
 import com.faforever.client.util.IdenticonUtil;
 import com.faforever.client.util.TimeService;
@@ -52,7 +51,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -141,7 +139,6 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
   protected final EventBus eventBus;
   protected final WebViewConfigurer webViewConfigurer;
   protected final ExternalReplayInfoGenerator externalReplayInfoGenerator;
-  protected final ImageUploadService imageUploadService;
   protected final UrlPreviewResolver urlPreviewResolver;
   protected final AutoCompletionHelper autoCompletionHelper;
   protected final ClanService clanService;
@@ -182,8 +179,7 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
                                    UserService userService, ChatService chatService,
                                    PlatformService platformService, PreferencesService preferencesService,
                                    PlayerService playerService, AudioService audioService,
-                                   TimeService timeService, I18n i18n,
-                                   ImageUploadService imageUploadService, UrlPreviewResolver urlPreviewResolver,
+                                   TimeService timeService, I18n i18n, UrlPreviewResolver urlPreviewResolver,
                                    NotificationService notificationService, ReportingService reportingService, UiService uiService,
                                    AutoCompletionHelper autoCompletionHelper, EventBus eventBus, CountryFlagService countryFlagService,
                                    ReplayService replayService, ClientProperties clientProperties, ExternalReplayInfoGenerator externalReplayInfoGenerator) {
@@ -199,7 +195,6 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
     this.audioService = audioService;
     this.timeService = timeService;
     this.i18n = i18n;
-    this.imageUploadService = imageUploadService;
     this.urlPreviewResolver = urlPreviewResolver;
     this.notificationService = notificationService;
     this.reportingService = reportingService;
@@ -349,20 +344,23 @@ public abstract class AbstractChatTabController implements Controller<Tab> {
     TextInputControl messageTextField = messageTextField();
     int currentCaretPosition = messageTextField.getCaretPosition();
 
+    ImageUploadWindowController uploadImageController = uiService.loadFxml("theme/image_upload.fxml");
+    uploadImageController.setImage(JavaFxUtil.getImageFromClipboard());
+    uploadImageController.setCallback(urlCompletableFuture -> urlCompletableFuture
+        .thenAccept(url -> Platform.runLater(() -> {
+          messageTextField.insertText(currentCaretPosition, url.toExternalForm());
+          messageTextField.setDisable(false);
+          messageTextField.requestFocus();
+          messageTextField.positionCaret(messageTextField.getLength());
+        }))
+        .exceptionally(throwable -> {
+          Platform.runLater(() -> messageTextField.setDisable(false));
+          return null;
+        }));
+
+    uiService.displayDialog(uploadImageController.getRoot(), getRoot().getTabPane().getScene().getWindow());
+
     messageTextField.setDisable(true);
-
-    Clipboard clipboard = Clipboard.getSystemClipboard();
-    Image image = clipboard.getImage();
-
-    imageUploadService.uploadImageInBackground(image).thenAccept(url -> {
-      messageTextField.insertText(currentCaretPosition, url);
-      messageTextField.setDisable(false);
-      messageTextField.requestFocus();
-      messageTextField.positionCaret(messageTextField.getLength());
-    }).exceptionally(throwable -> {
-      messageTextField.setDisable(false);
-      return null;
-    });
   }
 
   private void initChatView() {

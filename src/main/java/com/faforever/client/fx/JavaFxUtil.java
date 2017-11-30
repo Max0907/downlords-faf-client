@@ -34,7 +34,13 @@ import javafx.util.Duration;
 import javafx.util.StringConverter;
 import lombok.SneakyThrows;
 
+import javax.imageio.ImageIO;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -295,5 +301,32 @@ public final class JavaFxUtil {
       // deltaY/height to make the scrolling equally fast regardless of the actual height of the component
       scrollPane.setVvalue(vvalue + -deltaY / height);
     });
+  }
+
+  @SneakyThrows
+  public static Image getImageFromClipboard() {
+    Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+    if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.imageFlavor)) {
+      return awtImageToFX((java.awt.Image) transferable.getTransferData(DataFlavor.imageFlavor));
+    }
+    return null;
+  }
+
+  private static javafx.scene.image.Image awtImageToFX(java.awt.Image image) throws Exception {
+    // TODO use SwingFXUtils?
+    if (!(image instanceof java.awt.image.RenderedImage)) {
+      BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null),
+          BufferedImage.TYPE_INT_ARGB);
+      java.awt.Graphics g = bufferedImage.createGraphics();
+      g.drawImage(image, 0, 0, null);
+      g.dispose();
+
+      image = bufferedImage;
+    }
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ImageIO.write((java.awt.image.RenderedImage) image, "png", out);
+    out.flush();
+    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    return new javafx.scene.image.Image(in);
   }
 }

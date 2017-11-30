@@ -44,6 +44,9 @@ public class FafClientApplication extends Application {
   private ConfigurableApplicationContext applicationContext;
 
   public static void main(String[] args) {
+    // https://stackoverflow.com/questions/34642602/image-from-clipboard-not-correctly-displayed-in-javafx-8-application#comment82122718_40697108
+    System.setProperty("java.awt.headless", "false");
+
     FafClientApplication.args = args;
     PreferencesService.configureLogging();
     launch(args);

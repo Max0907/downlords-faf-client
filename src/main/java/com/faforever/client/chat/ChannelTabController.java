@@ -16,7 +16,6 @@ import com.faforever.client.replay.ExternalReplayInfoGenerator;
 import com.faforever.client.replay.ReplayService;
 import com.faforever.client.reporting.ReportingService;
 import com.faforever.client.theme.UiService;
-import com.faforever.client.uploader.ImageUploadService;
 import com.faforever.client.user.UserService;
 import com.faforever.client.util.TimeService;
 import com.google.common.annotations.VisibleForTesting;
@@ -110,7 +109,7 @@ public class ChannelTabController extends AbstractChatTabController {
   public ChannelTabController(ClanService clanService, UserService userService, ChatService chatService,
                               PlatformService platformService, PreferencesService preferencesService,
                               PlayerService playerService, AudioService audioService, TimeService timeService,
-                              I18n i18n, ImageUploadService imageUploadService, UrlPreviewResolver urlPreviewResolver,
+                              I18n i18n, UrlPreviewResolver urlPreviewResolver,
                               NotificationService notificationService, ReportingService reportingService,
                               UiService uiService, AutoCompletionHelper autoCompletionHelper, EventBus eventBus,
                               WebViewConfigurer webViewConfigurer, ThreadPoolExecutor threadPoolExecutor,
@@ -119,7 +118,7 @@ public class ChannelTabController extends AbstractChatTabController {
                               ExternalReplayInfoGenerator externalReplayInfoGenerator) {
 
     super(clanService, webViewConfigurer, userService, chatService, platformService, preferencesService, playerService,
-        audioService, timeService, i18n, imageUploadService, urlPreviewResolver, notificationService, reportingService,
+        audioService, timeService, i18n, urlPreviewResolver, notificationService, reportingService,
         uiService, autoCompletionHelper, eventBus, countryFlagService, replayService, clientProperties, externalReplayInfoGenerator);
 
     userToChatUserControls = FXCollections.observableMap(new ConcurrentHashMap<>());

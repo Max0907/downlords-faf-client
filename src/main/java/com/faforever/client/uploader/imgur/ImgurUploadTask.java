@@ -34,7 +34,7 @@ import static com.faforever.commons.io.Bytes.formatSize;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class ImgurUploadTask extends CompletableTask<String> {
+public class ImgurUploadTask extends CompletableTask<URL> {
 
   private final Gson gson;
 
@@ -65,7 +65,7 @@ public class ImgurUploadTask extends CompletableTask<String> {
   }
 
   @Override
-  protected String call() throws Exception {
+  protected URL call() throws Exception {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
@@ -116,7 +116,7 @@ public class ImgurUploadTask extends CompletableTask<String> {
       throw new RuntimeException("Image upload failed, status code: " + imgurRestResponse.status);
     }
 
-    return imgurRestResponse.data.link;
+    return new URL(imgurRestResponse.data.link);
   }
 
   public void setImage(Image image) {

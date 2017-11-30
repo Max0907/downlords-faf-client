@@ -2,6 +2,7 @@ package com.faforever.client.theme;
 
 import com.faforever.client.config.CacheNames;
 import com.faforever.client.fx.Controller;
+import com.faforever.client.fx.WindowController;
 import com.faforever.client.i18n.I18n;
 import com.faforever.client.preferences.PreferencesService;
 import com.github.nocatch.NoCatch.NoCatchRunnable;
@@ -15,7 +16,12 @@ import javafx.collections.ObservableMap;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Region;
 import javafx.scene.web.WebView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.Window;
 import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +60,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static com.faforever.client.fx.WindowController.WindowButtonType.CLOSE;
 import static com.faforever.client.io.FileUtils.deleteRecursively;
 import static com.faforever.client.preferences.Preferences.DEFAULT_THEME_NAME;
 import static com.github.nocatch.NoCatch.noCatch;
@@ -333,6 +340,19 @@ public class UiServiceImpl implements UiService {
     loader.setResources(resources);
     noCatch((NoCatchRunnable) loader::load);
     return loader.getController();
+  }
+
+  @Override
+  // TODO make relevant code use this method
+  public void displayDialog(Region content, Window ownerWindow) {
+    Stage dialog = new Stage(StageStyle.TRANSPARENT);
+    dialog.initModality(Modality.NONE);
+    dialog.initOwner(ownerWindow);
+
+    WindowController windowController = loadFxml("theme/window.fxml");
+    windowController.configure(dialog, content, true, CLOSE);
+
+    dialog.show();
   }
 
   private Path getThemeDirectory(Theme theme) {
