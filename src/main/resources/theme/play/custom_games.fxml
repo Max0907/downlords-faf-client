@@ -35,6 +35,8 @@
                   <children>
                       <Button fx:id="createGameButton" defaultButton="true" mnemonicParsing="false" onAction="#onCreateGameButtonClicked" text="%games.create" />
                       <CheckBox mnemonicParsing="false" onAction="#onShowPrivateGames" selected="true" text="%games.showPasswordProtectedGames" />
+                      <CheckBox mnemonicParsing="false" onAction="#onShowModdedGames" selected="true"
+                                text="%games.showModdedGames"/>
                       <ChoiceBox fx:id="chooseSortingTypeChoiceBox"/>
                       <Pane HBox.hgrow="ALWAYS" />
                     <HBox alignment="BASELINE_LEFT">

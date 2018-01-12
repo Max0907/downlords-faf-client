@@ -66,7 +66,8 @@ public class CustomGamesController implements Controller<Node> {
   public ScrollPane gameDetailPane;
   public GameDetailController gameDetailController;
   public ChoiceBox<TilesSortingOrder> chooseSortingTypeChoiceBox;
-
+    private boolean showModdedGames = true;
+    private boolean showPasswordProtectedGames = true;
   private FilteredList<Game> filteredItems;
 
   @Inject
@@ -122,15 +123,32 @@ public class CustomGamesController implements Controller<Node> {
     eventBus.register(this);
   }
 
-  public void onShowPrivateGames(ActionEvent actionEvent) {
-    CheckBox checkBox = (CheckBox) actionEvent.getSource();
-    boolean selected = checkBox.isSelected();
-    if (selected) {
-      filteredItems.setPredicate(OPEN_CUSTOM_GAMES_PREDICATE);
-    } else {
-      filteredItems.setPredicate(OPEN_CUSTOM_GAMES_PREDICATE.and(gameInfoBean -> !gameInfoBean.getPasswordProtected()));
+    public void onShowPrivateGames(ActionEvent actionEvent) {
+        CheckBox checkBox = (CheckBox) actionEvent.getSource();
+        boolean selected = checkBox.isSelected();
+        showPasswordProtectedGames = selected;
+        updateFilteredItems();
     }
-  }
+
+    public void onShowModdedGames(ActionEvent actionEvent) {
+        CheckBox checkBox = (CheckBox) actionEvent.getSource();
+        boolean selected = checkBox.isSelected();
+        showModdedGames = selected;
+        updateFilteredItems();
+    }
+
+    public void updateFilteredItems() {
+        if (showPasswordProtectedGames && showModdedGames) {
+            filteredItems.setPredicate(OPEN_CUSTOM_GAMES_PREDICATE);
+        } else if (showModdedGames) {
+            filteredItems.setPredicate(OPEN_CUSTOM_GAMES_PREDICATE.and(gameInfoBean -> !gameInfoBean.getPasswordProtected()));
+        } else if (showPasswordProtectedGames) {
+            filteredItems.setPredicate(OPEN_CUSTOM_GAMES_PREDICATE.and(gameInfoBean -> gameInfoBean.getSimMods().isEmpty()));
+        } else {
+            filteredItems.setPredicate(OPEN_CUSTOM_GAMES_PREDICATE.and(gameInfoBean -> !gameInfoBean.getPasswordProtected()
+                    && gameInfoBean.getSimMods().isEmpty()));
+        }
+    }
 
   public void onCreateGameButtonClicked() {
     if (preferencesService.getPreferences().getForgedAlliance().getPath() == null) {
