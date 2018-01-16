@@ -66,9 +66,10 @@ public class CustomGamesController implements Controller<Node> {
   public ScrollPane gameDetailPane;
   public GameDetailController gameDetailController;
   public ChoiceBox<TilesSortingOrder> chooseSortingTypeChoiceBox;
-    private boolean showModdedGames = true;
-    private boolean showPasswordProtectedGames = true;
-  private FilteredList<Game> filteredItems;
+
+  public CheckBox showModdedGamesCheckBox;
+  public CheckBox showPasswordProtectedGamesCheckBox;
+  public FilteredList<Game> filteredItems;
 
   @Inject
   public CustomGamesController(UiService uiService, GameService gameService, PreferencesService preferencesService,
@@ -97,7 +98,10 @@ public class CustomGamesController implements Controller<Node> {
     ObservableList<Game> games = gameService.getGames();
 
     filteredItems = new FilteredList<>(games);
-    filteredItems.setPredicate(OPEN_CUSTOM_GAMES_PREDICATE);
+    showModdedGamesCheckBox.setSelected(preferencesService.getPreferences().getShowModdedGamesProperty().get());
+    showPasswordProtectedGamesCheckBox.setSelected(preferencesService.getPreferences().getShowPasswordProtectedGamesProperty().get());
+
+    updateFilteredItems();
 
     if (tilesButton.getId().equals(preferencesService.getPreferences().getGamesViewMode())) {
       viewToggleGroup.selectToggle(tilesButton);
@@ -124,21 +128,25 @@ public class CustomGamesController implements Controller<Node> {
   }
 
     public void onShowPrivateGames(ActionEvent actionEvent) {
-        CheckBox checkBox = (CheckBox) actionEvent.getSource();
-        boolean selected = checkBox.isSelected();
-        showPasswordProtectedGames = selected;
-        updateFilteredItems();
+      CheckBox checkBox = (CheckBox) actionEvent.getSource();
+      boolean selected = checkBox.isSelected();
+      preferencesService.getPreferences().setShowPasswordProtectedGamesProperty(selected);
+      preferencesService.storeInBackground();
+      updateFilteredItems();
     }
 
     public void onShowModdedGames(ActionEvent actionEvent) {
-        CheckBox checkBox = (CheckBox) actionEvent.getSource();
-        boolean selected = checkBox.isSelected();
-        showModdedGames = selected;
-        updateFilteredItems();
+      CheckBox checkBox = (CheckBox) actionEvent.getSource();
+      boolean selected = checkBox.isSelected();
+      preferencesService.getPreferences().setShowModdedGamesProperty(selected);
+      preferencesService.storeInBackground();
+      updateFilteredItems();
     }
 
     public void updateFilteredItems() {
-        if (showPasswordProtectedGames && showModdedGames) {
+    boolean showPasswordProtectedGames = showPasswordProtectedGamesCheckBox.isSelected();
+    boolean showModdedGames = showModdedGamesCheckBox.isSelected();
+      if (showPasswordProtectedGames && showModdedGames) {
             filteredItems.setPredicate(OPEN_CUSTOM_GAMES_PREDICATE);
         } else if (showModdedGames) {
             filteredItems.setPredicate(OPEN_CUSTOM_GAMES_PREDICATE.and(gameInfoBean -> !gameInfoBean.getPasswordProtected()));
